@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grocery List Manager</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            margin-top: 30px;
+        }
+        
+        header {
+            background: #4CAF50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .app-content {
+            padding: 20px;
+        }
+        
+        .input-section {
+            display: flex;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        
+        #new-item {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        #new-item:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+        
+        #add-button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        
+        #add-button:hover {
+            background: #388E3C;
+        }
+        
+        .category-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .category-tab {
+            padding: 8px 15px;
+            background: #f5f5f5;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .category-tab.active {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        #grocery-list {
+            list-style-type: none;
+            margin-top: 20px;
+        }
+        
+        .list-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            animation: fadeIn 0.5s;
+            gap: 10px;
+        }
+        
+        .list-item:last-child {
+            border-bottom: none;
+        }
+        
+        .item-checkbox {
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+        }
+        
+        .item-text {
+            flex: 1;
+            font-size: 16px;
+        }
+        
+        .item-category {
+            font-size: 12px;
+            background: #f0f0f0;
+            padding: 3px 8px;
+            border-radius: 12px;
+        }
+        
+        .checked .item-text {
+            text-decoration: line-through;
+            color: #888;
+        }
+        
+        .delete-btn {
+            color: #f44336;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+        
+        .delete-btn:hover {
+            opacity: 1;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #888;
+        }
+        
+        .empty-state i {
+            font-size: 50px;
+            margin-bottom: 15px;
+            color: #ccc;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 20px;
+            background: #f9f9f9;
+            border-top: 1px solid #eee;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            color: white;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @media (max-width: 500px) {
+            .container {
+                border-radius: 10px;
+            }
+            
+            .input-section {
+                flex-direction: column;
+            }
+            
+            #add-button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-shopping-cart"></i> Grocery List Manager</h1>
+            <p class="subtitle">Organize your shopping efficiently</p>
+        </header>
+        
+        <div class="app-content">
+            <div class="input-section">
+                <input type="text" id="new-item" placeholder="Add an item (e.g., Milk, Eggs)...">
+                <button id="add-button"><i class="fas fa-plus"></i> Add</button>
+            </div>
+            
+            <div class="category-tabs">
+                <div class="category-tab active" data-category="all">All Items</div>
+                <div class="category-tab" data-category="Produce">Produce</div>
+                <div class="category-tab" data-category="Dairy">Dairy</div>
+                <div class="category-tab" data-category="Bakery">Bakery</div>
+                <div class="category-tab" data-category="Other">Other</div>
+            </div>
+            
+            <ul id="grocery-list">
+                <div class="empty-state">
+                    <i class="fas fa-shopping-basket"></i>
+                    <p>Your grocery list is empty</p>
+                    <p>Add items to get started</p>
+                </div>
+            </ul>
+        </div>
+        
+        <div class="stats">
+            <span id="total-items">0 items</span>
+            <span id="completed-items">0 completed</span>
+        </div>
+    </div>
+    
+    <footer>
+        <p>Hosted on GitHub Pages | Created with <i class="fas fa-heart" style="color: #f44336;"></i></p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const newItemInput = document.getElementById('new-item');
+            const addButton = document.getElementById('add-button');
+            const groceryList = document.getElementById('grocery-list');
+            const categoryTabs = document.querySelectorAll('.category-tab');
+            const totalItemsSpan = document.getElementById('total-items');
+            const completedItemsSpan = document.getElementById('completed-items');
+            
+            let items = JSON.parse(localStorage.getItem('groceryList')) || [];
+            let currentCategory = 'all';
+            
+            // Initialize the app
+            updateList();
+            updateStats();
+            
+            // Add item when clicking the Add button
+            addButton.addEventListener('click', addItemHandler);
+            
+            // Add item when pressing Enter
+            newItemInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addItemHandler();
+                }
+            });
+            
+            // Category filter tabs
+            categoryTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    categoryTabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    currentCategory = this.getAttribute('data-category');
+                    updateList();
+                });
+            });
+            
+            function addItemHandler() {
+                const itemText = newItemInput.value.trim();
+                
+                if (itemText !== '') {
+                    const category = detectCategory(itemText);
+                    items.push({
+                        id: Date.now(),
+                        text: itemText,
+                        completed: false,
+                        category: category
+                    });
+                    
+                    saveListToStorage();
+                    updateList();
+                    updateStats();
+                    
+                    newItemInput.value = '';
+                    newItemInput.focus();
+                }
+            }
+            
+            function detectCategory(itemText) {
+                const text = itemText.toLowerCase();
+                
+                if (text.includes('apple') || text.includes('banana') || text.includes('vegetable') || 
+                    text.includes('fruit') || text.includes('lettuce') || text.includes('tomato')) {
+                    return 'Produce';
+                } else if (text.includes('milk') || text.includes('cheese') || text.includes('yogurt') || 
+                          text.includes('butter') || text.includes('cream')) {
+                    return 'Dairy';
+                } else if (text.includes('bread') || text.includes('cake') || text.includes('cookie') || 
+                          text.includes('pastry') || text.includes('bagel')) {
+                    return 'Bakery';
+                } else {
+                    return 'Other';
+                }
+            }
+            
+            function updateList() {
+                groceryList.innerHTML = '';
+                
+                const filteredItems = currentCategory === 'all' 
+                    ? items 
+                    : items.filter(item => item.category === currentCategory);
+                
+                if (filteredItems.length === 0) {
+                    groceryList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-shopping-basket"></i>
+                            <p>No items in this category</p>
+                            <p>Add items to get started</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                filteredItems.forEach(item => {
+                    const listItem = document.createElement('li');
+                    listItem.className = 'list-item';
+                    if (item.completed) listItem.classList.add('checked');
+                    
+                    listItem.innerHTML = `
+                        <input type="checkbox" class="item-checkbox" ${item.completed ? 'checked' : ''}>
+                        <span class="item-text">${item.text}</span>
+                        <span class="item-category">${item.category}</span>
+                        <button class="delete-btn"><i class="fas fa-trash"></i></button>
+                    `;
+                    
+                    const checkbox = listItem.querySelector('.item-checkbox');
+                    checkbox.addEventListener('change', function() {
+                        item.completed = this.checked;
+                        if (this.checked) {
+                            listItem.classList.add('checked');
+                        } else {
+                            listItem.classList.remove('checked');
+                        }
+                        saveListToStorage();
+                        updateStats();
+                    });
+                    
+                    const deleteBtn = listItem.querySelector('.delete-btn');
+                    deleteBtn.addEventListener('click', function() {
+                        items = items.filter(i => i.id !== item.id);
+                        saveListToStorage();
+                        updateList();
+                        updateStats();
+                    });
+                    
+                    groceryList.appendChild(listItem);
+                });
+            }
+            
+            function updateStats() {
+                const total = items.length;
+                const completed = items.filter(item => item.completed).length;
+                
+                totalItemsSpan.textContent = `${total} item${total !== 1 ? 's' : ''}`;
+                completedItemsSpan.textContent = `${completed} completed`;
+            }
+            
+            function saveListToStorage() {
+                localStorage.setItem('groceryList', JSON.stringify(items));
+            }
+        });
+    </script>
+</body>
+</html>
